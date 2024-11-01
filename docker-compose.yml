@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234567
+      MYSQL_DATABASE: desafio_3
+      TZ: UTC
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: 1234567
+
+    ports:
+      - "3306:3306"
+    networks:
+      - usernetwork
+    restart: always
+
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - usernetwork
+
+  user-management:
+    image: user-management
+    build: ./thirdchallenge
+    working_dir: /thirdchallenge
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysqldb
+      - rabbitmq
+    restart: always
+    networks:
+      - usernetwork
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/desafio_3
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234567
+      - SECRET_KEY=70165810360642928052074927762786
+
+  notify:
+    image: notify
+    working_dir: /notify
+    build: ./notify
+    depends_on:
+      - rabbitmq
+    networks:
+      - usernetwork
+
+networks:
+  usernetwork:
+    driver: bridge

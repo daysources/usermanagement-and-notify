@@ -27,8 +27,8 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers(HttpMethod.POST, "/api/register").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/users/auth").permitAll()
                                 .anyRequest().authenticated()
                 ).sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

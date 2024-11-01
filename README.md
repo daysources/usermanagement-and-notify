@@ -4,6 +4,7 @@
   - *RabbitMQ* for logging the events in the *Notify* microservice.
   - *MySQL Database* for data persistence.
   - *JWT* for authentication.
+  - *ViaCEP* for fetching addresses.
 
 ## Endpoints and Usage
 
@@ -48,5 +49,13 @@
 
     git clone https://github.com/daysources/usermanagement-and-notify.git
 
-Make sure you have Docker running and can see the Docker Compose file at the root, then open a PowerShell terminal there and build the containers with:
+Make sure you have Docker running and enter the "notify" directory. Make sure you can see the "Dockerfile" in there, and open a PowerShell prompt, running the command:
+    
+    mvn clean package -DskipTests
+Wait until you see a message "BUILD SUCCESS", and repeat this process for the "thirdchallenge" directory. Then, return to the root, making sure you can see the "docker-compose.yml" file, and run the PowerShell command there:
 
+    docker compose up -d --build
+
+ Wait for a while as Docker builds and runs the containers, and soon you will see their status in the prompt. From there, use the 8080 port to make the HTTP requests described in the "Endpoints and Usage" section.
+
+ Sometimes, it is possible that, when they run right after creation, either the notify or users-management containers starts before their dependencies, and fail to connect. In that scenario, please stop them, wait a few seconds, and run again.

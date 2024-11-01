@@ -2,7 +2,10 @@ spring:
   application:
     name: notify
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     port: 5672
     username: guest
     password: guest
+
+server:
+  port: 8088
