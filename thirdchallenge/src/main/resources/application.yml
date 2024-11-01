@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: thirdchallenge
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/desafio_3?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: 1234567
+  jpa:
+    hibernate:
+      ddl-auto: update
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
+    port: 5672
