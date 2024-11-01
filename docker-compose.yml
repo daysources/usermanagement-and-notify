@@ -9,6 +9,11 @@ services:
       TZ: UTC
       MYSQL_USER: docker
       MYSQL_PASSWORD: 1234567
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-u$MYSQL_USER", "-p$MYSQL_PASSWORD",  "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
+      timeout: 15s
 
     ports:
       - "3306:3306"
@@ -24,6 +29,11 @@ services:
       - "15672:15672"
     networks:
       - usernetwork
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
 
   user-management:
     image: user-management
@@ -32,8 +42,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mysqldb
-      - rabbitmq
+      mysqldb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: always
     networks:
       - usernetwork
@@ -48,7 +60,8 @@ services:
     working_dir: /notify
     build: ./notify
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - usernetwork
 

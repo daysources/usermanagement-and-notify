@@ -45,7 +45,7 @@
     Spring Boot 3.3.5
 
 ## How to Run
- You will need Docker installed in order to run this service. Clone this repository to a local directory with:
+ You will need Git, Maven and Docker installed in order to run this service. Clone this repository to a local directory with:
 
     git clone https://github.com/daysources/usermanagement-and-notify.git
 
@@ -56,6 +56,4 @@ Wait until you see a message "BUILD SUCCESS", and repeat this process for the "t
 
     docker compose up -d --build
 
- Wait for a while as Docker builds and runs the containers, and soon you will see their status in the prompt. From there, use the 8080 port to make the HTTP requests described in the "Endpoints and Usage" section.
-
- Sometimes, it is possible that, when they run right after creation, either the notify or users-management containers starts before their dependencies, and fail to connect. In that scenario, please stop them, wait a few seconds, and run again.
+ Wait for a while as Docker builds and runs the containers, and soon you will see their status in the prompt. From there, use the 8080 port to make the HTTP requests described in the "Endpoints and Usage" section, with a tool such as Insomnia or similar.
