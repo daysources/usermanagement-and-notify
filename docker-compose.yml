@@ -1,6 +1,22 @@
 version: '3.9'
 
 services:
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - usernetwork
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: datalogs
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 5s
+      retries: 5
+      timeout: 10s
+
   mysqldb:
     image: mysql:8.0
     environment:
@@ -20,7 +36,6 @@ services:
     networks:
       - usernetwork
     restart: always
-
 
   rabbitmq:
     image: rabbitmq:3.9-management
@@ -61,6 +76,8 @@ services:
     build: ./notify
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
     networks:
       - usernetwork
