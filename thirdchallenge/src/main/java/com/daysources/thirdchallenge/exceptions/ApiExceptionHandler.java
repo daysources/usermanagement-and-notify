@@ -20,13 +20,14 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(new ErrorMessage("ADDRESS FETCH ERROR", ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<?> invalidCredentialsException(InvalidCredentialsException ex){
         return new ResponseEntity<>(new ErrorMessage("INVALID CREDENTIALS", ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @Getter @Setter
-    static class ErrorMessage {
+    public static class ErrorMessage {
         private String error;
         private String message;
 

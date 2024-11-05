@@ -29,7 +29,7 @@ services:
       test: ["CMD", "mysqladmin", "-u$MYSQL_USER", "-p$MYSQL_PASSWORD",  "ping", "-h", "localhost"]
       interval: 5s
       retries: 5
-      timeout: 15s
+      timeout: 10s
 
     ports:
       - "3306:3306"
@@ -48,7 +48,7 @@ services:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 5s
       retries: 5
-      timeout: 5s
+      timeout: 10s
 
   user-management:
     image: user-management
@@ -58,7 +58,7 @@ services:
       - "8080:8080"
     depends_on:
       mysqldb:
-        condition: service_healthy
+        condition: service_started
       rabbitmq:
         condition: service_healthy
     restart: always
@@ -77,8 +77,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-      mongodb:
-        condition: service_healthy
+      mysqldb:
+        condition: service_started
     networks:
       - usernetwork
 
