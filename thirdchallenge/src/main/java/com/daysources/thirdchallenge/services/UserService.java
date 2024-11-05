@@ -1,22 +1,30 @@
 package com.daysources.thirdchallenge.services;
 
+import com.daysources.thirdchallenge.dto.AddressDto;
 import com.daysources.thirdchallenge.dto.PasswordRequestDto;
 import com.daysources.thirdchallenge.dto.UserDto;
 import com.daysources.thirdchallenge.dto.UserRequestDto;
 import com.daysources.thirdchallenge.entities.Address;
 import com.daysources.thirdchallenge.entities.User;
+import com.daysources.thirdchallenge.exceptions.InvalidCredentialsException;
+import com.daysources.thirdchallenge.exceptions.InvalidZipcodeException;
+import com.daysources.thirdchallenge.exceptions.UnavailableUsernameException;
 import com.daysources.thirdchallenge.repositories.UserRepository;
 import com.daysources.thirdchallenge.util.AddressMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 
+@Slf4j
 @Service @RequiredArgsConstructor
 public class UserService {
 
@@ -28,13 +36,12 @@ public class UserService {
     public Address findByPostal(String cep){
         String url = "https://viacep.com.br/ws/" + cep + "/json/";
         ResponseEntity<Address> response = restTemplate.getForEntity(url, Address.class);
-
-        if (response.getStatusCode() == HttpStatus.OK){
-            return response.getBody();
+        AddressDto dto = AddressMapper.toDto(response.getBody());
+        if (dto.getStreet() == null || dto.getCity() == null){
+            log.warn("Incorrect CEP format or sequence.");
+            throw new InvalidZipcodeException("The zip code is invalid, please check and try again.");
         }
-        else{
-            throw new RuntimeException("API Error - Service unavailable or incorrect postal code.");
-        }
+        return response.getBody();
     }
 
     public User findByUsername(String username){
@@ -44,31 +51,36 @@ public class UserService {
     }
 
     public UserDto create (UserRequestDto userRequestDto){
-        userRequestDto.setPostalCode(userRequestDto.getPostalCode().replace("-",""));
-        Address address = findByPostal(userRequestDto.getPostalCode());
-        User user = new User();
-        user.setUsername(userRequestDto.getUsername());
-        user.setEmail(userRequestDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
-        user.setCep(userRequestDto.getPostalCode());
-        user.setAddress(address);
-        userRepository.save(user);
+        try {
+            userRequestDto.setPostalCode(userRequestDto.getPostalCode().replace("-", ""));
+            Address address = findByPostal(userRequestDto.getPostalCode());
+            User user = new User();
+            user.setUsername(userRequestDto.getUsername());
+            user.setEmail(userRequestDto.getEmail());
+            user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+            user.setCep(userRequestDto.getPostalCode());
+            user.setAddress(address);
+            userRepository.save(user);
+
         rabbit.sendUserActionMessage("Username: "+ userRequestDto.getUsername() + " | Operation: CREATE");
 
         return new UserDto(user.getUsername(), user.getEmail(), AddressMapper.toDto(address));
+        }
+        catch (DataIntegrityViolationException e){
+            throw new UnavailableUsernameException("The username provided is already in use. Please try again with a different one.");
+        }
 
     }
 
     public void update (PasswordRequestDto request){
         Optional<User> user = userRepository.findByUsername(request.getUsername());
         if(user.isEmpty()){
-            throw new RuntimeException("User not found.");
+            throw new InvalidCredentialsException("User not found.");
         }
         else {
             User updatedUser = user.get();
             if(!passwordEncoder.matches(request.getOldPassword(), updatedUser.getPassword())){
-                System.out.println(request.toString());
-                throw new RuntimeException("Invalid old password.");
+                throw new InvalidCredentialsException("Old password does not match database.");
 
             }
             else {

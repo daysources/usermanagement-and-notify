@@ -5,6 +5,7 @@ import com.daysources.thirdchallenge.dto.AuthDto;
 import com.daysources.thirdchallenge.dto.PasswordRequestDto;
 import com.daysources.thirdchallenge.dto.UserDto;
 import com.daysources.thirdchallenge.dto.UserRequestDto;
+import com.daysources.thirdchallenge.exceptions.InvalidCredentialsException;
 import com.daysources.thirdchallenge.services.JwtUserDetailsService;
 import com.daysources.thirdchallenge.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,9 +50,8 @@ public class UserController {
             return ResponseEntity.ok(token);
         }
         catch (AuthenticationException e){
-            log.warn("Bad credentials.");
+            throw new InvalidCredentialsException("Username or password are invalid.");
         }
-        return ResponseEntity.badRequest().build();
     }
 
 
