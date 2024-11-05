@@ -6,6 +6,7 @@ import com.daysources.thirdchallenge.dto.UserDto;
 import com.daysources.thirdchallenge.dto.UserRequestDto;
 import com.daysources.thirdchallenge.entities.Address;
 import com.daysources.thirdchallenge.entities.User;
+import com.daysources.thirdchallenge.exceptions.ApiCallErrorException;
 import com.daysources.thirdchallenge.exceptions.InvalidCredentialsException;
 import com.daysources.thirdchallenge.exceptions.InvalidZipcodeException;
 import com.daysources.thirdchallenge.exceptions.UnavailableUsernameException;
@@ -16,6 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class UserService {
 
     public Address findByPostal(String cep){
         ResponseEntity<Address> response = addressCall.getByPostal(cep);
+        if (response.getStatusCode()!= HttpStatus.OK){
+            throw new ApiCallErrorException("Error contacting the address fetch service. Please try again later.");
+        }
         AddressDto dto = AddressMapper.toDto(response.getBody());
         if (dto.getStreet() == null || dto.getCity() == null){
             log.warn("Incorrect CEP format or sequence.");

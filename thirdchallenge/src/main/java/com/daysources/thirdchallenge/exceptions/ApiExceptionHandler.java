@@ -26,6 +26,11 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(new ErrorMessage("INVALID CREDENTIALS", ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ApiCallErrorException.class)
+    public ResponseEntity<?> ApiCallErrorException(ApiCallErrorException ex){
+        return new ResponseEntity<>(new ErrorMessage("API CALL ERROR", ex.getMessage()), HttpStatus.BAD_GATEWAY);
+    }
+
     @Getter @Setter
     public static class ErrorMessage {
         private String error;
