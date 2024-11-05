@@ -54,6 +54,8 @@
     Java 17
     Maven 3.9.9
     Insomnia 10.1.1
+    MySQL Server & Workbench 8
+    MongoDB 5 & Compass 1.44.6
     Spring Boot 3.3.5
 
 ## How to Run
@@ -69,8 +71,16 @@ Wait until you see a message "BUILD SUCCESS", and repeat this process for the "t
     docker compose up -d --build
 
  Wait for a while as Docker builds and runs the containers, and soon you will see their status in the prompt. From there, use the 8080 port to make the HTTP requests described in the "Endpoints and Usage" section, with a tool such as Insomnia or similar, or a browser for the Swagger UI.
+
  <div style="text-align: center;">
   <img src="readme-img/dockercomposebuild.png" alt="Image description" style="max-width: 100%; height: auto;">
 </div>
 
- If there are any issues during startup, please try to stop the notify and user management containers, wait five seconds and start them again. 
+ 
+ You can also use MySQL Workbench to check for data persistence upon user creation:
+ (Port: 3306, User: root, Password: 1234567)
+
+ And MongoDB Compass to check the Notify logs:
+ (Port: 27017)
+ 
+ If there are any issues during startup, please try to stop the notify and user management containers, wait five seconds and start them again.

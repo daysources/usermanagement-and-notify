@@ -10,32 +10,29 @@ import com.daysources.thirdchallenge.exceptions.InvalidCredentialsException;
 import com.daysources.thirdchallenge.exceptions.InvalidZipcodeException;
 import com.daysources.thirdchallenge.exceptions.UnavailableUsernameException;
 import com.daysources.thirdchallenge.repositories.UserRepository;
+import com.daysources.thirdchallenge.util.AddressCall;
 import com.daysources.thirdchallenge.util.AddressMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 
 @Slf4j
 @Service @RequiredArgsConstructor
 public class UserService {
 
-    private final RestTemplate restTemplate;
+    private final AddressCall addressCall;
     private final UserRepository userRepository;
     private final RabbitSender rabbit;
     private final PasswordEncoder passwordEncoder;
 
     public Address findByPostal(String cep){
-        String url = "https://viacep.com.br/ws/" + cep + "/json/";
-        ResponseEntity<Address> response = restTemplate.getForEntity(url, Address.class);
+        ResponseEntity<Address> response = addressCall.getByPostal(cep);
         AddressDto dto = AddressMapper.toDto(response.getBody());
         if (dto.getStreet() == null || dto.getCity() == null){
             log.warn("Incorrect CEP format or sequence.");
