@@ -42,6 +42,8 @@ public class UserController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.class))),
                     @ApiResponse(responseCode = "409", description = "Username unavailable.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "502", description = "Error contacting ViaCEP API.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid zip code in request body.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
             })
